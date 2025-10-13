@@ -7,7 +7,7 @@ import pandas as pd
 
 # ---------------- Config ----------------
 st.set_page_config(page_title="Visual Product Search", layout="wide")
-st.title("🔍 Visual Product Search")
+st.title("Visual Product Search")
 
 # ---------------- Helper Functions ----------------
 @st.cache_data(show_spinner=False)
