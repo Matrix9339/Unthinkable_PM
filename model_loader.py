@@ -6,7 +6,7 @@ import requests
 import os
 import json
 
-# ------------------ Config ------------------
+# Config 
 PRODUCT_JSON = "products.json"
 VECTOR_JSON = "product_vectors.json"
 MODEL_FILE = "mobilenetv3_small.pt"
@@ -14,7 +14,7 @@ MODEL_FILE = "mobilenetv3_small.pt"
 device = "cpu"
 print("✅ Device:", device)
 
-# ------------------ Load MobileNetV3 Small ------------------
+# Load MobileNetV3 Small
 def load_model():
     model = models.mobilenet_v3_small(weights=None)
     if os.path.exists(MODEL_FILE):
@@ -31,7 +31,7 @@ def load_model():
 
 model = load_model()
 
-# ------------------ Preprocessing ------------------
+# Preprocessing 
 preprocess = transforms.Compose([
     transforms.Resize(224),
     transforms.CenterCrop(224),
@@ -40,7 +40,7 @@ preprocess = transforms.Compose([
                          std=[0.229, 0.224, 0.225]),
 ])
 
-# ------------------ Helper Functions ------------------
+# Helper Functions
 def get_image_embedding(path_or_url):
     """Convert image (path or URL) to embedding vector."""
     try:
@@ -69,7 +69,7 @@ def cosine_similarity(vec1, vec2):
     return torch.dot(a, b) / (a.norm() * b.norm() + 1e-8)
 
 
-# ------------------ Load Products & Precomputed Vectors ------------------
+# Load Products & Precomputed Vectors 
 def load_json_file(path):
     if not os.path.exists(path):
         print(f"❌ File '{path}' not found!")

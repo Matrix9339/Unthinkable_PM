@@ -1,15 +1,14 @@
-# advanced_app_streamlit.py
 import streamlit as st
 from PIL import Image
 from model_loader import products, product_vectors, get_image_embedding, cosine_similarity
 import os
 import pandas as pd
 
-# ---------------- Config ----------------
+# Config 
 st.set_page_config(page_title="Visual Product Search", layout="wide")
 st.title("Visual Product Search")
 
-# ---------------- Helper Functions ----------------
+# Helper Functions 
 @st.cache_data(show_spinner=False)
 def find_similar(uploaded_path, threshold=0.5, top_k=5):
     query_vec = get_image_embedding(uploaded_path)
@@ -44,7 +43,7 @@ def display_results(results):
     else:
         st.info("No products found. Try adjusting category or similarity threshold.")
 
-# ---------------- Sidebar Filters ----------------
+# Sidebar Filters 
 st.sidebar.header("Filters")
 uploaded_file = st.sidebar.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
 image_url = st.sidebar.text_input("Or Image URL", placeholder="https://...")
@@ -53,7 +52,7 @@ selected_categories = st.sidebar.multiselect("Select Category(s)", ["all"] + cat
 similarity_threshold = st.sidebar.slider("Similarity Threshold", 0.0, 1.0, 0.5, 0.01)
 top_k = st.sidebar.slider("Top K Results", 1, 20, 5)
 
-# ---------------- Search Button ----------------
+# Search Button
 if st.sidebar.button("Search"):
     # Handle uploaded file or URL
     if uploaded_file:
