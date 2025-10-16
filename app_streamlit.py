@@ -36,7 +36,7 @@ def display_results(results):
         for idx, (product, score) in enumerate(results):
             col = cols[idx % n_cols]
             with col:
-                st.image(product["thumbnail"], use_container_width=True)
+                st.image(product["thumbnail"])
                 st.markdown(f"**{product['title']}**")
                 st.markdown(f"Category: {product['category']}")
                 st.markdown(f"Price: ₹{product['price']}")
