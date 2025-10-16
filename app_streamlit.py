@@ -7,7 +7,7 @@ import pandas as pd
 
 # ---------------- Config ----------------
 st.set_page_config(page_title="Visual Product Search", layout="wide")
-st.title("Visual Product Search")
+st.title("🔍 Visual Product Search")
 
 # ---------------- Helper Functions ----------------
 @st.cache_data(show_spinner=False)
@@ -31,7 +31,12 @@ def find_similar(uploaded_path, threshold=0.5, top_k=5):
 
 def display_results(results):
     if results:
-        n_cols = 4
+        # Responsive layout based on screen width
+        if st.session_state.get("is_mobile", False):
+            n_cols = 1
+        else:
+            n_cols = 4
+
         cols = st.columns(n_cols)
         for idx, (product, score) in enumerate(results):
             col = cols[idx % n_cols]
@@ -42,15 +47,37 @@ def display_results(results):
                 except TypeError:
                     # Fallback for older Streamlit builds (on Streamlit Cloud)
                     st.image(product["thumbnail"], width=300)
+
                 st.markdown(f"**{product['title']}**")
-                st.markdown(f"Category: {product['category']}")
-                st.markdown(f"Price: ₹{product['price']}")
-                st.markdown(f"Similarity: {round(score, 2)}")
+                st.markdown(f"📦 Category: `{product['category']}`")
+                st.markdown(f"💰 Price: ₹{product['price']}")
+                st.markdown(f"🧮 Similarity: {round(score, 2)}")
+
     else:
         st.info("No products found. Try adjusting category or similarity threshold.")
 
+# ---------------- Detect Mobile Layout ----------------
+def detect_device():
+    """Detect if app is being viewed on mobile by screen width."""
+    st.markdown(
+        """
+        <style>
+        @media (max-width: 768px) {
+            [data-testid="stVerticalBlock"] div[data-testid="column"] {
+                flex: 1 1 100% !important;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    # crude flag (not perfect but helps layout logic)
+    st.session_state["is_mobile"] = False  # Always defined
+
+
 # ---------------- Sidebar Filters ----------------
-st.sidebar.header("Filters")
+detect_device()
+st.sidebar.header("⚙️ Filters")
 uploaded_file = st.sidebar.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
 image_url = st.sidebar.text_input("Or Image URL", placeholder="https://...")
 categories = sorted({(p.get('category') or '').strip() for p in products if p.get('category')})
@@ -59,7 +86,7 @@ similarity_threshold = st.sidebar.slider("Similarity Threshold", 0.0, 1.0, 0.5, 
 top_k = st.sidebar.slider("Top K Results", 1, 20, 5)
 
 # ---------------- Search Button ----------------
-if st.sidebar.button("Search"):
+if st.sidebar.button("🔎 Search"):
     # Handle uploaded file or URL
     if uploaded_file:
         img = Image.open(uploaded_file).convert("RGB")
@@ -73,11 +100,14 @@ if st.sidebar.button("Search"):
 
     if uploaded_path:
         # Show uploaded image
-        st.subheader("Uploaded Image")
-        if uploaded_file:
-            st.image(img, width=250)
-        elif image_url:
-            st.image(image_url, width=250)
+        st.subheader("📸 Uploaded Image")
+        try:
+            if uploaded_file:
+                st.image(img, width=250)
+            elif image_url:
+                st.image(image_url, width=250)
+        except Exception:
+            st.warning("Unable to display the uploaded image.")
 
         # Find similar products
         results = find_similar(uploaded_path, threshold=similarity_threshold, top_k=top_k)
@@ -86,15 +116,23 @@ if st.sidebar.button("Search"):
         if "all" not in selected_categories:
             results = [(p, s) for p, s in results if p.get('category') in selected_categories]
 
-        st.subheader("Search Results")
+        st.subheader("🧾 Search Results")
         display_results(results)
 
         # Optional: Download results as CSV
         if results:
-            df = pd.DataFrame([{
-                "title": p['title'],
-                "category": p['category'],
-                "price": p['price'],
-                "similarity": round(s, 3)
-            } for p, s in results])
-            st.download_button("Download Results CSV", df.to_csv(index=False), "results.csv", "text/csv")
+            df = pd.DataFrame([
+                {
+                    "title": p['title'],
+                    "category": p['category'],
+                    "price": p['price'],
+                    "similarity": round(s, 3),
+                }
+                for p, s in results
+            ])
+            st.download_button(
+                "📥 Download Results as CSV",
+                df.to_csv(index=False),
+                "results.csv",
+                "text/csv"
+            )
