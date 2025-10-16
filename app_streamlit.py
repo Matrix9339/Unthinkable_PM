@@ -36,11 +36,16 @@ def display_results(results):
         for idx, (product, score) in enumerate(results):
             col = cols[idx % n_cols]
             with col:
-                st.image(product["thumbnail"], use_container_width=True)
+                try:
+                    # Newer Streamlit versions (>=1.26)
+                    st.image(product["thumbnail"], use_container_width=True)
+                except TypeError:
+                    # Fallback for older Streamlit builds (on Streamlit Cloud)
+                    st.image(product["thumbnail"], width=300)
                 st.markdown(f"**{product['title']}**")
                 st.markdown(f"Category: {product['category']}")
                 st.markdown(f"Price: ₹{product['price']}")
-                st.markdown(f"Similarity: {round(score,2)}")
+                st.markdown(f"Similarity: {round(score, 2)}")
     else:
         st.info("No products found. Try adjusting category or similarity threshold.")
 
