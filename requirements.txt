@@ -5,4 +5,3 @@ Pillow
 requests
 gunicorn
 streamlit
-imghdr
